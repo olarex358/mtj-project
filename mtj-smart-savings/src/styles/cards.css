@@ -1,0 +1,4 @@
+.wallet-card { background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: white; padding: 18px; border-radius: var(--radius); box-shadow: var(--shadow); }
+.wallet-card span { font-size: 12px; text-transform: uppercase; opacity: .8; }
+.wallet-card h3 { font-size: 22px; margin: 6px 0 2px; }
+.wallet-card small { opacity: .7; }

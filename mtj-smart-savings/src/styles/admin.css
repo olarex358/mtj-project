@@ -1,0 +1,63 @@
+.admin-header {
+  padding: 24px;
+  background: linear-gradient(135deg, #1a2e26, #064425);
+  color: white;
+}
+
+.admin-header h1 {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.tagline {
+  opacity: 0.8;
+  font-size: 13px;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid #eee;
+  overflow-x: auto;
+}
+
+.admin-tabs button {
+  background: #f0f3f1;
+  color: var(--muted);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-tabs button:hover {
+  background: #e2e8e5;
+}
+
+.admin-tabs button.active {
+  background: var(--brand);
+  color: white;
+}
+
+.admin-content {
+  padding: 24px 16px;
+}
+
+.view-section {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.view-section h2 {
+  color: var(--brand-dark);
+  margin-bottom: 12px;
+  font-size: 18px;
+}

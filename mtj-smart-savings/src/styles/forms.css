@@ -1,0 +1,5 @@
+.card-form { background: var(--surface); margin: 16px; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 14px; }
+.card-form label { display: flex; flex-direction: column; font-size: 13px; color: var(--muted); gap: 6px; font-weight: 600; }
+.card-form input, .card-form select { padding: 12px; border: 1.5px solid #dde3e0; border-radius: 8px; font-size: 15px; color: var(--text); }
+.card-form input:focus { outline: none; border-color: var(--brand); }
+.profile-chip { background: #e8f8ef; color: var(--brand-dark); padding: 10px; border-radius: 8px; font-weight: 600; text-align: center; }

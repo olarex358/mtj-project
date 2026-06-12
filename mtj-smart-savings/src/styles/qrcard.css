@@ -1,0 +1,17 @@
+.qrcard-wrap { padding: 24px 16px; }
+.qrcard { background: linear-gradient(135deg, #0a6e3a 0%, #064425 60%, #0a4e29 100%); color: white; padding: 24px; border-radius: 18px; box-shadow: 0 12px 40px rgba(10, 110, 58, 0.3); position: relative; overflow: hidden; }
+.qrcard.frozen { filter: grayscale(0.7) brightness(0.85); }
+.qrcard-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.qrcard-top h2 { font-size: 18px; letter-spacing: 0.5px; }
+.qrcard-top small { opacity: 0.8; font-size: 11px; }
+.chip { width: 40px; height: 30px; border-radius: 6px; background: linear-gradient(135deg, #f5a623, #d4880f); }
+.qrcard-qr { display: flex; justify-content: center; margin: 20px 0; }
+.qrcard-info { text-align: center; margin-bottom: 16px; }
+.qrcard-info strong { display: block; font-size: 18px; letter-spacing: 1px; }
+.qrcard-info small { opacity: 0.75; font-size: 11px; }
+.qrcard-info code { display: block; margin-top: 4px; font-size: 10px; opacity: 0.6; }
+.qrcard-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; opacity: 0.8; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.15); }
+.frozen-badge { background: #3498db; padding: 2px 8px; border-radius: 10px; opacity: 1; }
+.card-controls { display: flex; gap: 12px; padding: 16px 0; }
+.card-controls button { flex: 1; }
+@media print { body * { visibility: hidden; } #printable-card, #printable-card * { visibility: visible; } #printable-card { position: absolute; left: 0; top: 0; width: 85.6mm; height: 53.98mm; box-shadow: none; border: 1px solid #ddd; } .bottom-nav, .card-controls { display: none !important; } }

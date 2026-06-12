@@ -1,0 +1,16 @@
+.target-header { padding: 24px; background: var(--brand); color: white; }
+.back-btn { background: rgba(255,255,255,0.15); color: white; padding: 6px 12px; font-size: 13px; border-radius: 20px; margin-bottom: 12px;}
+.target-progress-card { background: white; margin: 16px; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); }
+.progress-stats { display: flex; justify-content: space-between; align-items: end; }
+.progress-stats small { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+.progress-stats h2 { color: var(--brand-dark); font-size: 28px; margin: 4px 0; }
+.progress-stats h3 { color: var(--text); font-size: 18px; }
+.progress-stats .right { text-align: right; }
+.progress-bar { height: 12px; background: #e8eeeb; border-radius: 6px; margin: 16px 0 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--brand), var(--accent)); border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; min-width: 30px; }
+.progress-fill span { font-size: 9px; color: white; font-weight: 700; }
+.fee-notice { background: #fff8e1; color: #7a5a00; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 12px; border-left: 3px solid var(--accent); }
+.goal-list { list-style: none; padding: 0; }
+.goal-list li { background: white; padding: 16px; margin-bottom: 10px; border-radius: 10px; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
+.goal-list strong { color: var(--brand-dark); }
+.goal-list span { color: var(--muted); font-size: 13px; }

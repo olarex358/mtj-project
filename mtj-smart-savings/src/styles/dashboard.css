@@ -1,0 +1,10 @@
+.dash-header { padding: 24px; background: var(--brand); color: white; }
+.dash-header h1 { font-size: 22px; }
+.tagline { opacity: .8; font-size: 13px; }
+.balance-hero { margin: 16px; padding: 24px; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); }
+.balance-hero span { color: var(--muted); font-size: 13px; }
+.balance-hero h2 { font-size: 32px; margin: 4px 0 16px; color: var(--brand-dark); }
+.quick-actions { display: flex; gap: 12px; }
+.wallets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; padding: 0 16px; }
+.quick-nav { display: flex; gap: 10px; padding: 24px 16px; flex-wrap: wrap; justify-content: center; }
+.quick-nav a { background: var(--surface); padding: 14px 18px; border-radius: var(--radius); box-shadow: var(--shadow); font-weight: 600; }

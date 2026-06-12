@@ -1,0 +1,10 @@
+:root { --brand: #0a6e3a; --brand-dark: #064425; --accent: #f5a623; --bg: #f5f7f6; --surface: #ffffff; --text: #1a2e26; --muted: #6b7a74; --danger: #c0392b; --success: #27ae60; --radius: 12px; --shadow: 0 2px 12px rgba(0,0,0,0.06); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+button { background: var(--brand); color: white; border: none; padding: 12px 20px; border-radius: var(--radius); font-weight: 600; cursor: pointer; font-size: 15px; transition: transform .1s, background .2s; }
+button:hover { background: var(--brand-dark); }
+button.outline { background: transparent; color: var(--brand); border: 2px solid var(--brand); }
+.loading { text-align: center; padding: 40px; color: var(--muted); }
+.alert { margin: 16px; padding: 12px; border-radius: 8px; font-weight: 600; }
+.alert.error { background: #fdecea; color: var(--danger); }
+.alert.success { background: #e8f8ef; color: var(--success); }
