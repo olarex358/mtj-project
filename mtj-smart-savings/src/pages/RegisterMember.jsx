@@ -14,8 +14,9 @@ export default function RegisterMember() {
   const [photo, setPhoto] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
   const [whatsappLink, setWhatsappLink] = useState('');
+  const [newPin, setNewPin] = useState('');
 
-  // Handle photo capture (converts to Base64 for the pilot)
+  // Handle photo capture
   function handlePhotoChange(e) {
     const file = e.target.files[0];
     if (file) {
@@ -30,38 +31,50 @@ export default function RegisterMember() {
     setLoading(true);
 
     try {
-      // 1. Generate a temporary email and password for the new member
-      const tempEmail = `${formData.phone.replace(/\s/g, '')}@mtj.app`;
-      const tempPassword = 'MTJ' + Math.floor(1000 + Math.random() * 9000); // e.g., MTJ4821
+      const cleanPhone = formData.phone.replace(/\s/g, '');
+      
+      // 1. Generate a random 4-digit PIN for the new member
+      const generatedPin = Math.floor(1000 + Math.random() * 9000).toString();
+      setNewPin(generatedPin);
 
-      // 2. Create Auth User
+      // 2. Create the "Hidden Email" and "Hidden Password" for Supabase
+      const hiddenEmail = `${cleanPhone}@mtj.app`;
+      const hiddenPassword = generatedPin + '_mtj_secret_salt'; // Supabase needs 6+ chars
+
+      // 3. Create Auth User
       const { data: authData, error: authErr } = await supabase.auth.signUp({
-        email: tempEmail,
-        password: tempPassword,
+        email: hiddenEmail,
+        password: hiddenPassword,
+        options: {
+          data: {
+            full_name: formData.fullName,
+            phone: cleanPhone
+          }
+        }
       });
       if (authErr) throw authErr;
 
       const newUserId = authData.user.id;
 
-      // 3. Generate QR Token
+      // 4. Generate QR Token
       const qrToken = 'MTJ-' + Math.random().toString(36).substring(2, 10).toUpperCase();
 
-      // 4. Create Profile
+      // 5. Create Profile
       const { error: profileErr } = await supabase.from('profiles').insert({
         id: newUserId,
         full_name: formData.fullName,
-        phone: formData.phone,
+        phone: cleanPhone,
         role: 'user',
-        pin_hash: btoa('0000'), // Default PIN is 0000
+        pin_hash: btoa(generatedPin), // Store 4-digit PIN hash
         card_qr_token: qrToken,
         card_status: 'pending',
         trust_score: 50,
-        referred_by_agent_id: user.id, // Links member to this agent!
+        referred_by_agent_id: user.id,
         photo_url: photo,
       });
       if (profileErr) throw profileErr;
 
-      // 5. Create 5 Wallets for the new member
+      // 6. Create 5 Wallets
       const walletTypes = ['daily', 'rotation', 'target', 'loan', 'rewards'];
       const { data: newWallets } = await supabase
         .from('wallets')
@@ -70,7 +83,7 @@ export default function RegisterMember() {
 
       const dailyWalletId = newWallets.find(w => w.type === 'daily').id;
 
-      // 6. Get Agent's Rewards Wallet ID
+      // 7. Get Agent's Rewards Wallet ID
       const { data: agentWallets } = await supabase
         .from('wallets')
         .select('id')
@@ -78,14 +91,14 @@ export default function RegisterMember() {
         .eq('type', 'rewards')
         .single();
 
-      // 7. Execute the ₦400 Split (₦200 Agent, ₦200 MTJ)
+      // 8. Execute the 400 Split
       await recordRegistrationSplit(newUserId, user.id, dailyWalletId, agentWallets.id);
 
-      // 8. Generate WhatsApp Deep Link for Receipt
-      const message = `Welcome to MTJ Smart Savings! 🟢\n\nName: ${formData.fullName}\nCard Fee: ₦200\nFirst Contribution: ₦200\nTotal Paid: 400\n\nYour physical QR card is being prepared. Save Today, Secure Tomorrow!`;
-      const waLink = `https://wa.me/${formData.phone.replace(/\s/g, '')}?text=${encodeURIComponent(message)}`;
+      // 9. Generate WhatsApp Deep Link
+      const message = `Welcome to MTJ Smart Savings! 🟢\n\nName: ${formData.fullName}\nYour Login Phone: ${cleanPhone}\nYour 4-Digit PIN: ${generatedPin}\n\nTotal Paid: 400. Your physical QR card is being prepared. Save Today, Secure Tomorrow!`;
+      const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 
-      setSuccessMsg(`✅ Member registered! Default PIN: 0000`);
+      setSuccessMsg(`✅ Member registered! Default PIN: ${generatedPin}`);
       setWhatsappLink(waLink);
       
     } catch (err) {

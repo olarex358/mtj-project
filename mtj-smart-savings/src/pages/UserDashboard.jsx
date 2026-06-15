@@ -48,6 +48,30 @@ export default function UserDashboard() {
           <button className="outline" onClick={() => navigate('/tx/withdraw')}>Withdraw</button>
         </div>
       </section>
+
+            {/* Login QR Section */}
+      <section style={{ padding: '0 16px 16px' }}>
+        <div style={{ background: 'white', padding: '16px', borderRadius: '12px', boxShadow: 'var(--shadow)', textAlign: 'center' }}>
+          <h3 style={{ margin: '0 0 10px 0', color: 'var(--brand-dark)' }}>Quick Login QR</h3>
+          <p style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '15px' }}>
+            Show this to an agent to log in without typing your PIN.
+          </p>
+          <button 
+            onClick={() => {
+              const qrData = JSON.stringify({
+                phone: profile.phone,
+                pin: atob(profile.pin_hash), // Decode the PIN
+                exp: Date.now() // Expiration timestamp
+              });
+              alert(`Your Login QR Data:\n${qrData}\n\n(Note: In the final app, this will display as a visual QR code using qrcode.react)`);
+              // We will add the visual QR component in the next step if you like this flow!
+            }}
+            style={{ background: 'var(--brand)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold' }}
+          >
+            📱 Generate Login QR
+          </button>
+        </div>
+      </section>
             {/* Trust Score Card */}
       <section style={{ padding: '0 16px 16px' }}>
         <div style={{ background: 'white', padding: '16px', borderRadius: '12px', boxShadow: 'var(--shadow)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

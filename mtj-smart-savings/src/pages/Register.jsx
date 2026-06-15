@@ -1,70 +1,146 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../supabase';
-import '../styles/auth.css';
-
-function generateQRToken() { return 'MTJ-' + Math.random().toString(36).slice(2, 10).toUpperCase() + '-' + Date.now().toString(36).toUpperCase(); }
-function hashPin(pin) { return btoa('mtj_salt_' + pin); }
+import Layout from '../components/Layout';
+import '../styles/forms.css';
 
 export default function Register() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ full_name: '', phone: '', email: '', password: '', pin: '', pinConfirm: '', role: 'user' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  const [formData, setFormData] = useState({
+    fullName: '',
+    phone: '',
+    email: '', // Now optional
+    pin: ''
+  });
 
-    async function handleSubmit(e) {
+  async function handleRegister(e) {
     e.preventDefault();
     setLoading(true);
+    setError('');
+
     try {
+      const cleanPhone = formData.phone.replace(/\s/g, '');
+      
+      // If no email provided, generate a hidden one based on phone
+      const hiddenEmail = formData.email ? formData.email : `${cleanPhone}@mtj.app`;
+      
+      // Supabase requires 6+ chars for password, so we append a hidden salt to the PIN
+      const hiddenPassword = formData.pin + '_mtj_secret_salt';
+
       // 1. Create Auth User
       const { data: authData, error: authErr } = await supabase.auth.signUp({
-        email: formData.email, password: formData.password,
-        options: { data: { full_name: formData.fullName, phone: formData.phone } }
+        email: hiddenEmail,
+        password: hiddenPassword,
+        options: {
+          data: {
+            full_name: formData.fullName,
+            phone: cleanPhone
+          }
+        }
       });
+
       if (authErr) throw authErr;
 
-      // 2. Generate Referral Code & QR Token
-      const referralCode = 'MTJ' + Math.random().toString(36).substring(2, 8).toUpperCase();
-      const qrToken = 'MTJ-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-
-      // 3. Create Profile (Self-Registered = No Agent Link)
+      // 2. Create Profile in 'profiles' table
       const { error: profileErr } = await supabase.from('profiles').insert({
-        id: authData.user.id, full_name: formData.fullName, phone: formData.phone,
-        role: 'user', pin_hash: btoa(formData.pin), card_qr_token: qrToken,
-        card_status: 'pending', trust_score: 40, // Self-registered start lower
-        referral_code: referralCode
+        id: authData.user.id,
+        full_name: formData.fullName,
+        phone: cleanPhone,
+        role: 'user',
+        pin_hash: btoa(formData.pin), // Store 4-digit PIN hash for quick local checks
+        card_qr_token: 'MTJ-' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+        card_status: 'pending',
+        trust_score: 40 // Self-registered users start with lower trust
       });
+
       if (profileErr) throw profileErr;
 
-      // 4. Create Wallets
+      // 3. Create 5 Wallets for the new user
       const walletTypes = ['daily', 'rotation', 'target', 'loan', 'rewards'];
-      await supabase.from('wallets').insert(walletTypes.map(t => ({ user_id: authData.user.id, type: t })));
+      await supabase.from('wallets').insert(
+        walletTypes.map(t => ({ user_id: authData.user.id, type: t }))
+      );
 
-      alert(`✅ Account Created! Your Referral Code: ${referralCode}\nPlease pay ₦200 for your physical card.`);
+      alert('✅ Account created successfully! Please login.');
       navigate('/login');
-    } catch (err) { alert(err.message); } finally { setLoading(false); }
+
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }
+
   return (
-    <div className="auth-wrap">
-      <div className="auth-card">
-        <div className="brand-badge">MTJ</div>
-        <h1>Join MTJ Smart Savings</h1>
-        <p className="sub">Save Today. Secure Tomorrow.</p>
-        <form onSubmit={handleSubmit}>
-          <label>Full Name <input value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} required /></label>
-          <label>Phone <input value={form.phone} placeholder="08012345678" onChange={e => setForm({...form, phone: e.target.value})} required /></label>
-          <label>Email <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required /></label>
-          <label>Password <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} minLength={6} required /></label>
-          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px'}}>
-            <label>4-Digit PIN <input type="password" maxLength={4} value={form.pin} onChange={e => setForm({...form, pin: e.target.value.replace(/\D/g,'')})} required /></label>
-            <label>Confirm PIN <input type="password" maxLength={4} value={form.pinConfirm} onChange={e => setForm({...form, pinConfirm: e.target.value.replace(/\D/g,'')})} required /></label>
-          </div>
-          <label>I am a… <select value={form.role} onChange={e => setForm({...form, role: e.target.value})}><option value="user">Member</option><option value="agent">MTJ Smart Agent</option></select></label>
-          {error && <div className="alert error">{error}</div>}
-          <button type="submit" disabled={loading}>{loading ? 'Creating account…' : 'Create Account'}</button>
+    <Layout>
+      <div className="auth-container">
+        <div className="auth-header">
+          <h1>Join MTJ Savings</h1>
+          <p>Create your account in seconds.</p>
+        </div>
+
+        {error && <div className="alert error">{error}</div>}
+
+        <form onSubmit={handleRegister} className="card-form">
+          <label>
+            Full Name
+            <input 
+              type="text" 
+              value={formData.fullName} 
+              onChange={e => setFormData({...formData, fullName: e.target.value})} 
+              required 
+              placeholder="e.g. Adebayo Johnson"
+            />
+          </label>
+
+          <label>
+            Phone Number
+            <input 
+              type="tel" 
+              value={formData.phone} 
+              onChange={e => setFormData({...formData, phone: e.target.value})} 
+              required 
+              placeholder="e.g. 08012345678"
+            />
+          </label>
+
+          <label>
+            Email Address <span style={{fontSize: '12px', color: 'var(--muted)'}}>(Optional)</span>
+            <input 
+              type="email" 
+              value={formData.email} 
+              onChange={e => setFormData({...formData, email: e.target.value})} 
+              placeholder="Leave blank to use phone number"
+            />
+          </label>
+
+          <label>
+            Create 4-Digit PIN
+            <input 
+              type="password" 
+              inputMode="numeric" 
+              pattern="[0-9]*" 
+              maxLength={4} 
+              value={formData.pin} 
+              onChange={e => setFormData({...formData, pin: e.target.value})} 
+              required 
+              placeholder="****"
+              style={{ letterSpacing: '8px', fontSize: '20px', textAlign: 'center' }}
+            />
+          </label>
+
+          <button type="submit" disabled={loading} style={{ marginTop: '10px' }}>
+            {loading ? 'Creating Account...' : 'Create Account'}
+          </button>
         </form>
-        <p className="auth-link">Already have an account? <Link to="/login">Sign in</Link></p>
+
+        <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px' }}>
+          Already have an account? <Link to="/login" style={{ color: 'var(--brand)', fontWeight: 'bold' }}>Login</Link>
+        </p>
       </div>
-    </div>
+    </Layout>
   );
 }
