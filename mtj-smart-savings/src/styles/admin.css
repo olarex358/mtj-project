@@ -1,34 +1,44 @@
 .admin-header {
-  padding: 24px;
-  background: linear-gradient(135deg, #1a2e26, #064425);
+  padding: 20px;
+  background: linear-gradient(135deg, #0a6e3a, #064425);
   color: white;
 }
 
-.admin-header h1 {
-  font-size: 22px;
-  margin-bottom: 4px;
-}
+.admin-header h1 { font-size: 22px; margin: 0 0 4px 0; }
+.tagline { opacity: 0.8; font-size: 12px; margin: 0; }
 
-.tagline {
-  opacity: 0.8;
-  font-size: 13px;
+/* PRO: Global Search Bar Styling */
+.admin-search-bar {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
 }
+.admin-search-bar:focus { outline: none; box-shadow: 0 0 0 2px #f5a623; }
 
+/* PRO: Mobile-First Scrollable Tabs */
 .admin-tabs {
   display: flex;
   gap: 8px;
-  padding: 16px;
+  padding: 12px 16px;
   background: white;
   border-bottom: 1px solid #eee;
-  overflow-x: auto;
+  overflow-x: auto; /* Allows horizontal scrolling on mobile */
+  scrollbar-width: none; /* Hides scrollbar in Firefox */
+  -ms-overflow-style: none; /* Hides scrollbar in IE/Edge */
 }
+.admin-tabs::-webkit-scrollbar { display: none; /* Hides scrollbar in Chrome/Safari */ }
 
 .admin-tabs button {
   background: #f0f3f1;
-  color: var(--muted);
+  color: #666;
   border: none;
   padding: 10px 16px;
-  border-radius: 8px;
+  border-radius: 20px; /* Pill shape looks more modern */
   font-weight: 600;
   font-size: 13px;
   white-space: nowrap;
@@ -36,28 +46,26 @@
   transition: all 0.2s;
 }
 
-.admin-tabs button:hover {
-  background: #e2e8e5;
-}
-
 .admin-tabs button.active {
-  background: var(--brand);
+  background: #0a6e3a;
   color: white;
 }
 
-.admin-content {
-  padding: 24px 16px;
+/* PRO: Real-Time Notification Badge */
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #e74c3c;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 2px solid white;
 }
 
-.view-section {
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: var(--shadow);
-}
-
-.view-section h2 {
-  color: var(--brand-dark);
-  margin-bottom: 12px;
-  font-size: 18px;
-}
+.admin-content { padding: 16px; background: #f5f7f6; min-height: 100vh; }
+.view-section { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.view-section h2 { color: #064425; margin-top: 0; font-size: 18px; }
+.outline { background: white; color: #0a6e3a; border: 1px solid #0a6e3a; border-radius: 6px; cursor: pointer; font-weight: bold; }
