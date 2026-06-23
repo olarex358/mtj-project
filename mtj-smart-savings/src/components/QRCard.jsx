@@ -1,50 +1,29 @@
-import { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { supabase } from '../supabase';
 import { useAuth } from '../context/AuthContext';
-import '../styles/qrcard.css';
+import Layout from './Layout';
 
 export default function QRCard() {
-  const { user } = useAuth();
-  const [profile, setProfile] = useState(null);
-
-  useEffect(() => { load(); }, [user]);
-  async function load() {
-    const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-    setProfile(data);
-  }
-  async function freezeToggle() {
-    const next = !profile.card_frozen;
-    await supabase.from('profiles').update({ card_frozen: next }).eq('id', user.id);
-    setProfile({ ...profile, card_frozen: next });
-  }
-  function print() { window.print(); }
-  if (!profile) return null;
+  const { profile } = useAuth();
 
   return (
-    <div className="qrcard-wrap">
-      <div className={'qrcard ' + (profile.card_frozen ? 'frozen' : '')} id="printable-card">
-        <div className="qrcard-top">
-          <div><h2>MTJ Smart Savings</h2><small>Member Card</small></div>
-          <div className="chip"></div>
-        </div>
-        <div className="qrcard-qr">
-          <QRCodeSVG value={profile.card_qr_token} size={140} level="H" bgColor="#ffffff" fgColor="#064425" />
-        </div>
-        <div className="qrcard-info">
-          <strong>{profile.full_name}</strong>
-          <small>{profile.phone}</small>
-          <code>{profile.card_qr_token}</code>
-        </div>
-        <div className="qrcard-footer">
-          <span>Save Today · Secure Tomorrow</span>
-          {profile.card_frozen && <span className="frozen-badge">❄ FROZEN</span>}
+    <Layout>
+      <div style={{ padding: '24px 20px', textAlign: 'center' }}>
+        <h1 style={{ margin: '0 0 8px 0', color: '#111827', fontSize: '22px' }}>💳 My Digital Card</h1>
+        <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '30px' }}>Show this to any MTJ Agent</p>
+        
+        <div style={{ background: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', maxWidth: '320px', margin: '0 auto' }}>
+          <div style={{ background: '#F4F6F8', padding: '16px', borderRadius: '12px', marginBottom: '20px', display: 'inline-block' }}>
+            <QRCodeSVG value={profile?.card_qr_token || ''} size={180} level="H" includeMargin={true} />
+          </div>
+          
+          <h2 style={{ margin: '0 0 4px 0', color: '#111827', fontSize: '18px' }}>{profile?.full_name}</h2>
+          <p style={{ margin: '0 0 16px 0', color: '#6B7280', fontSize: '14px' }}>{profile?.phone}</p>
+          
+          <div style={{ background: '#F0FDF4', color: '#15803D', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: '600' }}>
+            ID: {profile?.card_qr_token}
+          </div>
         </div>
       </div>
-      <div className="card-controls">
-        <button onClick={print}>🖨 Print Card</button>
-        <button onClick={freezeToggle} className="outline">{profile.card_frozen ? '🔓 Unfreeze' : '❄ Freeze'}</button>
-      </div>
-    </div>
+    </Layout>
   );
 }

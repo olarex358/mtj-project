@@ -1,24 +1,37 @@
-import { useNavigate } from 'react-router-dom';
-import '../styles/cards.css';
+import { getWalletBalance } from '../lib/ledger';
+import { useEffect, useState } from 'react';
 
-const LABELS = { daily: '💰 Daily Savings', rotation: '🔄 Rotation', target: '🎯 Target', loan: '💳 Loan', rewards: '🎁 Rewards' };
+const walletConfig = {
+  daily: { label: 'Daily Savings', icon: '💰', color: '#00B875' },
+  rotation: { label: 'Esusu / Rotation', icon: '🔄', color: '#3B82F6' },
+  target: { label: 'Target Savings', icon: '', color: '#8B5CF6' },
+  loan: { label: 'Loans', icon: '🏦', color: '#F59E0B' },
+  rewards: { label: 'Rewards', icon: '🎁', color: '#EC4899' }
+};
 
 export default function WalletCard({ wallet }) {
-  const navigate = useNavigate();
-  const pct = wallet.target_amount ? Math.min(100, (Number(wallet.balance) / Number(wallet.target_amount)) * 100) : null;
+  const [balance, setBalance] = useState(0);
+  const config = walletConfig[wallet.type] || walletConfig.daily;
+
+  useEffect(() => {
+    getWalletBalance(wallet.id).then(setBalance);
+  }, [wallet.id]);
+
   return (
-    <div className="wallet-card" onClick={() => wallet.type === 'target' && wallet.target_id && navigate('/target/' + wallet.target_id)}
-         style={{ cursor: wallet.type === 'target' && wallet.target_id ? 'pointer' : 'default' }}>
-      <span>{LABELS[wallet.type]}</span>
-      <h3>₦ {Number(wallet.balance || 0).toLocaleString('en-NG')}</h3>
-      {pct !== null && (
-        <React.Fragment>
-          <div style={{ height: 4, background: 'rgba(255,255,255,.25)', borderRadius: 2, marginTop: 8 }}>
-            <div style={{ height: '100%', width: pct + '%', background: 'var(--accent)', borderRadius: 2 }} />
-          </div>
-          <small>{pct.toFixed(0)}% of ₦{Number(wallet.target_amount).toLocaleString('en-NG')}</small>
-        </React.Fragment>
-      )}
+    <div style={{ 
+      background: 'white', 
+      padding: '16px', 
+      borderRadius: '16px', 
+      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+      border: `1px solid #F3F4F6`
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+        <span style={{ fontSize: '16px' }}>{config.icon}</span>
+        <small style={{ color: '#6B7280', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase' }}>{config.label}</small>
+      </div>
+      <h3 style={{ margin: 0, color: '#111827', fontSize: '18px', fontWeight: '700' }}>
+        ₦{Number(balance).toLocaleString()}
+      </h3>
     </div>
   );
 }

@@ -1,49 +1,41 @@
 import { supabase } from '../supabase';
 
-// Standard transaction entry
-export async function recordEntry({ walletId, userId, agentId, type, amount, direction, reference, note }) {
+// Calculate balance by summing all credits and debits
+export async function getWalletBalance(walletId) {
   const { data, error } = await supabase
     .from('ledger_entries')
-    .insert({ 
-      wallet_id: walletId, 
-      user_id: userId, 
-      agent_id: agentId || null, 
-      type, 
-      amount, 
-      direction, 
-      reference: reference || null, 
-      note: note || null 
-    })
-    .select().single();
-  if (error) throw error;
-  return data;
+    .select('amount, direction')
+    .eq('wallet_id', walletId);
+
+  if (error || !data) return 0;
+
+  let balance = 0;
+  data.forEach(entry => {
+    if (entry.direction === 'credit') balance += Number(entry.amount);
+    if (entry.direction === 'debit') balance -= Number(entry.amount);
+  });
+  return balance;
 }
 
-export async function getWalletBalance(walletId) {
-  const { data, error } = await supabase.rpc('wallet_balance', { p_wallet_id: walletId });
+// Record a new transaction
+export async function recordEntry({ walletId, userId, agentId, type, amount, direction, reference, note }) {
+  const { error } = await supabase.from('ledger_entries').insert({
+    wallet_id: walletId,
+    user_id: userId,
+    agent_id: agentId,
+    type,
+    amount: Number(amount),
+    direction,
+    reference,
+    note,
+    created_at: new Date().toISOString()
+  });
   if (error) throw error;
-  return Number(data);
 }
 
-// NEW: Handle the ₦400 Registration Split
-export async function recordRegistrationSplit(memberUserId, agentUserId, memberDailyWalletId, agentRewardsWalletId) {
-  // 1. Agent gets ₦200 Commission
-  await supabase.from('ledger_entries').insert({
-    wallet_id: agentRewardsWalletId,
-    user_id: agentUserId,
-    type: 'registration_commission',
-    amount: 200,
-    direction: 'credit',
-    note: 'Agent registration fee (50%)'
-  });
-
-  // 2. MTJ gets ₦200 Platform Fee (We use a dummy wallet_id for platform revenue tracking)
-  await supabase.from('ledger_entries').insert({
-    wallet_id: memberDailyWalletId, // Temporarily using member wallet to track, but direction is debit
-    user_id: memberUserId,
-    type: 'platform_registration_fee',
-    amount: 200,
-    direction: 'debit', // Deducted from their "virtual" balance so it stays at 0
-    note: 'MTJ Platform fee (50%)'
-  });
+// Offline queue (saves to local storage for later sync)
+export async function queueTransaction(txn) {
+  const queue = JSON.parse(localStorage.getItem('mtj_offline_queue') || '[]');
+  queue.push(txn);
+  localStorage.setItem('mtj_offline_queue', JSON.stringify(queue));
 }
