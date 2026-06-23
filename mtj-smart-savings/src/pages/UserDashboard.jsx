@@ -6,13 +6,15 @@ import { getWalletBalance } from '../lib/ledger';
 import Layout from '../components/Layout';
 import WalletCard from '../components/WalletCard';
 import { calculateTrustScore, getTrustTier } from '../lib/trustScore';
-import TransactionQR from '../components/TransactionQR'; // Import the QR component
+import TransactionQR from '../components/TransactionQR';
+import ChangePIN from '../components/ChangePIN';
 
 export default function UserDashboard() {
   const { user, profile } = useAuth();
   const [wallets, setWallets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showQRModal, setShowQRModal] = useState(null); // 'deposit' or 'withdraw'
+  const [showQRModal, setShowQRModal] = useState(null);
+  const [showChangePIN, setShowChangePIN] = useState(false);
   const navigate = useNavigate();
 
   async function load() {
@@ -43,7 +45,6 @@ export default function UserDashboard() {
         <h1 style={{ margin: 0, fontSize: '14px', fontWeight: '500', opacity: 0.9 }}>Total Savings</h1>
         <h2 style={{ margin: '8px 0 20px 0', fontSize: '32px', fontWeight: '700' }}>{total.toLocaleString('en-NG', { minimumFractionDigits: 2 })}</h2>
         
-        {/* Primary Action Buttons */}
         <div style={{ display: 'flex', gap: '12px' }}>
           <button 
             onClick={() => setShowQRModal('deposit')}
@@ -55,12 +56,11 @@ export default function UserDashboard() {
             onClick={() => setShowQRModal('withdraw')}
             style={{ flex: 1, padding: '14px', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}
           >
-            📤 Withdraw
+             Withdraw
           </button>
         </div>
       </div>
 
-      {/* Content Container (Overlapping Header) */}
       <div style={{ padding: '0 16px', marginTop: '-20px' }}>
         
         {/* Trust Score Card */}
@@ -73,7 +73,7 @@ export default function UserDashboard() {
             </h3>
           </div>
           <button onClick={async () => { await calculateTrustScore(user.id); window.location.reload(); }} style={{ background: '#F4F6F8', border: 'none', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
-             Refresh
+            🔄 Refresh
           </button>
         </div>
 
@@ -104,6 +104,18 @@ export default function UserDashboard() {
           </label>
         </div>
 
+        {/* Security Settings (Change PIN) */}
+        <div style={{ background: 'white', padding: '16px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '16px' }}>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#111827' }}>🔐 Security Settings</h3>
+          <button
+            onClick={() => setShowChangePIN(true)}
+            style={{ width: '100%', padding: '14px', background: '#F4F6F8', color: '#111827', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <span>Change My PIN</span>
+            <span style={{ color: '#00B875' }}>→</span>
+          </button>
+        </div>
+
         {/* Wallets Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '20px' }}>
           {wallets.map(w => <WalletCard key={w.id} wallet={w} />)}
@@ -111,16 +123,15 @@ export default function UserDashboard() {
 
         {/* Quick Nav Buttons */}
         <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', overflowX: 'auto', paddingBottom: '10px' }}>
-          <button onClick={() => navigate('/target')} style={{ flex: '0 0 auto', padding: '12px 20px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '12px', fontSize: '13px', fontWeight: '600', color: '#111827', cursor: 'pointer' }}> Target Savings</button>
-          <button onClick={() => navigate('/rotations')} style={{ flex: '0 0 auto', padding: '12px 20px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '12px', fontSize: '13px', fontWeight: '600', color: '#111827', cursor: 'pointer' }}> Rotations</button>
+          <button onClick={() => navigate('/target')} style={{ flex: '0 0 auto', padding: '12px 20px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '12px', fontSize: '13px', fontWeight: '600', color: '#111827', cursor: 'pointer' }}>🎯 Target Savings</button>
+          <button onClick={() => navigate('/rotations')} style={{ flex: '0 0 auto', padding: '12px 20px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '12px', fontSize: '13px', fontWeight: '600', color: '#111827', cursor: 'pointer' }}>🔄 Rotations</button>
           <button onClick={() => navigate('/card')} style={{ flex: '0 0 auto', padding: '12px 20px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '12px', fontSize: '13px', fontWeight: '600', color: '#111827', cursor: 'pointer' }}>💳 My QR Card</button>
         </div>
       </div>
 
-      {/* QR Transaction Modal */}
-      {showQRModal && (
-        <TransactionQR type={showQRModal} onClose={() => setShowQRModal(null)} />
-      )}
+      {/* Modals */}
+      {showQRModal && <TransactionQR type={showQRModal} onClose={() => setShowQRModal(null)} />}
+      {showChangePIN && <ChangePIN onClose={() => setShowChangePIN(false)} />}
     </Layout>
   );
 }

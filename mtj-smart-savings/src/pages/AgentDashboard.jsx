@@ -4,13 +4,18 @@ import { supabase } from '../supabase';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import OnlineStatus from '../components/OnlineStatus';
+import ChangePIN from '../components/ChangePIN';
 
-function today() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString(); }
+function today() { 
+  const d = new Date(); 
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString(); 
+}
 
 export default function AgentDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState({ collections: 0, withdrawals: 0, remittance: 0, earnings: 0 });
+  const [showChangePIN, setShowChangePIN] = useState(false);
 
   async function loadStats() {
     const startOfDay = today();
@@ -32,7 +37,7 @@ export default function AgentDashboard() {
     <Layout>
       <OnlineStatus pendingCount={0} />
       
-      {/* OPay-Style Header */}
+      {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #00B875 0%, #008F5D 100%)', padding: '24px 20px 40px', color: 'white', borderBottomLeftRadius: '24px', borderBottomRightRadius: '24px' }}>
         <h1 style={{ margin: 0, fontSize: '22px', fontWeight: '700' }}>Agent Portal</h1>
         <p style={{ margin: '4px 0 0 0', fontSize: '13px', opacity: 0.9 }}>MTJ Smart Agent · Live</p>
@@ -52,7 +57,7 @@ export default function AgentDashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '20px' }}>
           <div style={{ background: 'white', padding: '16px', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
             <small style={{ color: '#6B7280', fontSize: '12px', fontWeight: '600' }}>Today's Collections</small>
-            <h3 style={{ margin: '8px 0 0 0', color: '#00B875', fontSize: '20px' }}>{stats.collections.toLocaleString()}</h3>
+            <h3 style={{ margin: '8px 0 0 0', color: '#00B875', fontSize: '20px' }}>₦{stats.collections.toLocaleString()}</h3>
           </div>
           <div style={{ background: 'white', padding: '16px', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
             <small style={{ color: '#6B7280', fontSize: '12px', fontWeight: '600' }}>Today's Withdrawals</small>
@@ -81,6 +86,18 @@ export default function AgentDashboard() {
           </div>
         </div>
 
+        {/* Security Section */}
+        <div style={{ background: 'white', padding: '16px', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginBottom: '20px' }}>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#111827' }}>🔐 Security Settings</h3>
+          <button
+            onClick={() => setShowChangePIN(true)}
+            style={{ width: '100%', padding: '14px', background: '#F4F6F8', color: '#111827', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <span>Change My PIN</span>
+            <span style={{ color: '#00B875' }}>→</span>
+          </button>
+        </div>
+
         {/* Secondary Actions */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
           <button onClick={() => navigate('/register-member')} style={{ width: '100%', padding: '16px', background: 'white', color: '#111827', border: '1px solid #E5E7EB', borderRadius: '12px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', textAlign: 'left' }}>
@@ -94,6 +111,9 @@ export default function AgentDashboard() {
           </button>
         </div>
       </div>
+
+      {/* Change PIN Modal */}
+      {showChangePIN && <ChangePIN onClose={() => setShowChangePIN(false)} />}
     </Layout>
   );
-}
+} 
